@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using Serilog;
 using System.Threading.Tasks;
 using UPS.EmployeeManagement.Model;
 using UPS.EmployeeManagement.Service.Util;
@@ -8,22 +9,16 @@ namespace UPS.EmployeeManagement.Service.Impl
     public class EmployeeService : IEmployeeService
     {
         private readonly IHttpClientUtil _httpClientUtil;
-        //private readonly ILogger _logger; 
-        public EmployeeService(IFlurlClient serviceClient)
+        private readonly ILogger _logger; 
+        public EmployeeService(IFlurlClient serviceClient, ILogger logger)
         {
-            //_logger = logger.ForContext(GetType()); ;
+            _logger = logger.ForContext(GetType()); ;
             _httpClientUtil = new HttpClientUtil(serviceClient);
         }
-        public async Task<dynamic> GetEmployees(SearchParams employeeSearchParams)
+        public async Task<GetEmployeeResponseModel> GetEmployees(SearchParams employeeSearchParams)
         {
-            //_logger.Information("{@SearchParams}", employeeSearchParams);
-            Newtonsoft.Json.Linq.JContainer result = await _httpClientUtil.GetAsync<dynamic>("users", employeeSearchParams);
-            //if(result.HasValues)
-            //{
-            //    result.First.Value
-            //}
-            return result;
-            //_logger.Information("{@GetEmployeeResponseModel}", response);
+            _logger.Information("{@SearchParams}", employeeSearchParams);
+            return await _httpClientUtil.GetAsync<GetEmployeeResponseModel>("users", employeeSearchParams);
         }        
 
         public async Task<CreateEmployeeResponse> CreateEmployee(Employee employee)

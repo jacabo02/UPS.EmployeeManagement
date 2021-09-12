@@ -59,7 +59,7 @@ namespace UPS.EmployeeManagement.Test
                     .GetAsync<GetEmployeeResponseModel>(Arg.Any<string>(), Arg.Any<SearchParams>())
                     .Returns(expectedModel);
 
-                _employeeService = new EmployeeService(_serviceClient);
+                _employeeService = new EmployeeService(_serviceClient, _logger);
                 GetEmployeeResponseModel resultModel = _employeeService.GetEmployees(new SearchParams()).Result;
 
                 Assert.NotNull(resultModel);

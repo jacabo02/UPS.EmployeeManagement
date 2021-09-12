@@ -23,7 +23,7 @@ namespace UPS.EmployeeManagement.Service.Util
         {
             return await _restClient
                 .Request(url)
-                //.SetQueryParams(searchParams.QueryParams)
+                .SetQueryParams(searchParams.QueryParams)
                 .GetJsonAsync<T>();
         }
 
