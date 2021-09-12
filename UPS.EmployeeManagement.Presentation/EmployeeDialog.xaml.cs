@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.Messaging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using UPS.EmployeeManagement.Presentation.Messages;
 
 namespace UPS.EmployeeManagement.Presentation
 {
@@ -20,6 +22,13 @@ namespace UPS.EmployeeManagement.Presentation
         public EmployeeDialog()
         {
             InitializeComponent();
+            Messenger.Default.Register<CloseDialogMessage>(this, Close);
+        }
+
+        private void Close(CloseDialogMessage obj)
+        {
+            DialogResult = obj.IsSuccess;
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

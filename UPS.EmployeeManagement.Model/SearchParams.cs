@@ -17,7 +17,19 @@ namespace UPS.EmployeeManagement.Model
             get
             {
                 return string.Join("&", KeyValuePairs
+                    .Where(t => !string.IsNullOrEmpty(t.Value))
                     .Select(t => string.Format("{0}={1}", t.Key, t.Value)));
+            }
+        }
+
+        public IEnumerable<string> QueryParams
+        {
+            get
+            {
+                return KeyValuePairs.Count > 0 ?
+                    KeyValuePairs
+                    .Where(t => !string.IsNullOrEmpty(t.Value))
+                    .Select(t => string.Format("{0}={1}", t.Key, t.Value)) : new List<string>();
             }
         }
     }

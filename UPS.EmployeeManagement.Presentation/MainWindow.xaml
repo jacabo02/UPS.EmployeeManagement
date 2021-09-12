@@ -14,7 +14,7 @@
         xmlns:converters="clr-namespace:UPS.EmployeeManagement.Presentation.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
-        <converters:GenderConverter x:Key="genderConverter"/>
+        <converters:BooleanToStringConverter x:Key="boolToTextConverter"/>
         <BooleanToVisibilityConverter x:Key="boolToVis"/>
     </Window.Resources>
     <Grid>
@@ -83,9 +83,9 @@
                         <DockPanel>
                             <Label>Gender</Label>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource genderConverter}, ConverterParameter=all, Mode=TwoWay}">All</RadioButton>
-                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource genderConverter}, ConverterParameter=female, Mode=TwoWay}">Female</RadioButton>
-                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource genderConverter}, ConverterParameter=male, Mode=TwoWay}">Male</RadioButton>
+                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource boolToTextConverter}, ConverterParameter=all, Mode=TwoWay}">All</RadioButton>
+                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource boolToTextConverter}, ConverterParameter=female, Mode=TwoWay}">Female</RadioButton>
+                                <RadioButton IsChecked="{Binding SearchModel.Gender, Converter={StaticResource boolToTextConverter}, ConverterParameter=male, Mode=TwoWay}">Male</RadioButton>
                             </StackPanel>
                         </DockPanel>
                     </StackPanel>
@@ -128,7 +128,10 @@
                                     <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.EditCommand}"
                                             CommandParameter="{Binding}"
                                             Background="AliceBlue" Margin="2">Edit</Button>
-                                    <Button Background="Red" Foreground="White" Margin="2">Delete</Button>
+                                    <Button 
+                                        Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.DeleteCommand}"
+                                        CommandParameter="{Binding}"
+                                        Background="Red" Foreground="White" Margin="2">Delete</Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
+using UPS.EmployeeManagement.Model;
+using UPS.EmployeeManagement.Presentation.Messages;
 using UPS.EmployeeManagement.Service;
 
 namespace UPS.EmployeeManagement.Presentation.ViewModel
@@ -17,6 +19,8 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
         }
 
         private string name;
+
+        public bool ForUpdate { get; set; }
 
         public string Name
         {
@@ -74,12 +78,32 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
 
                 async void Add()
                 {
-                    var result = await employeeService.CreateEmployee(new Model.Employee
+                    CreateEmployeeResponse result = null;
+                    if (ForUpdate)
                     {
-                        EMail = Email,
-                        Name = Name,
-                        Gender = Gender,
-                        Status = Status
+                        result = await employeeService.UpdateEmployee(new Model.Employee
+                        {
+                            Id = Convert.ToInt32(Id),
+                            EMail = Email,
+                            Name = Name,
+                            Gender = Gender,
+                            Status = Status
+                        });
+                    }
+                    else
+                    {
+                        result = await employeeService.CreateEmployee(new Model.Employee
+                        {
+                            EMail = Email,
+                            Name = Name,
+                            Gender = Gender,
+                            Status = Status
+                        });
+                    }
+
+                    MessengerInstance.Send(new CloseDialogMessage
+                    {
+                        IsSuccess = result != null
                     });
                 }
             }

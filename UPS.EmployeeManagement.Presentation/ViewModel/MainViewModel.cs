@@ -1,5 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.CommandWpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +55,10 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
             {
                 IsBusy = true;
                 SearchParams searchParams = new SearchParams();
-                searchParams.KeyValuePairs.Add("page", currentPage.ToString());
+                if (currentPage > 0)
+                {
+                    searchParams.KeyValuePairs.Add("page", currentPage.ToString());
+                }
                 if (!string.IsNullOrEmpty(SearchModel.Name))
                 {
                     searchParams.KeyValuePairs.Add("name", SearchModel.Name);
@@ -78,6 +81,8 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
                 var result = await employeeService.GetEmployees(searchParams);
 
                 SearchCompleted(result);
+
+                (NavigateCommand as RelayCommand<string>).RaiseCanExecuteChanged();
             }
             finally
             {
@@ -98,6 +103,7 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
             PagesLabel = $"/{model.MetaModel.PaginationModel.Pages}";
             SetCurrentPage(model.MetaModel.PaginationModel.Page);
             Total = model.MetaModel.PaginationModel.Total;
+            NumberOfPages = model.MetaModel.PaginationModel.Pages;
             omitSelectionChanged = true;
             PageNumbers = Enumerable.Range(1, model.MetaModel.PaginationModel.Pages).ToList();
             omitSelectionChanged = false;
@@ -158,7 +164,7 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
         {
             get
             {
-                return navigateCommand ?? (navigateCommand = new RelayCommand<string>(Navigate));
+                return navigateCommand ?? (navigateCommand = new RelayCommand<string>(Navigate, CanNavigate));
 
                 async void Navigate(string page)
                 {
@@ -167,13 +173,27 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
                     {
                         if (pageDirection != 0)
                         {
-                            SetCurrentPage(CurrentPage + Math.Max(Math.Min(1, pageDirection), NumberOfPages));
+                            SetCurrentPage(CurrentPage + pageDirection);
                         }
                         if (!omitSelectionChanged)
                         {
                             await QueryEmployees();
                         }
 
+                    }
+                }
+
+
+                bool CanNavigate(string page)
+                {
+                    int navDirection = Convert.ToInt32(page);
+                    if(navDirection >= 0)
+                    {
+                        return NumberOfPages > CurrentPage;
+                    }
+                    else
+                    {
+                        return CurrentPage > 1;
                     }
                 }
             }
@@ -186,16 +206,17 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
             {
                 return addCommand ?? (addCommand = new RelayCommand(AddEmployee));
 
-                void AddEmployee()
+                async void AddEmployee()
                 {
                     var employeeVm = new EmployeeViewModel(employeeService);
                     var employeeMessage = new EmployeeEditMessage
                     {
                         Employee = employeeVm,
-                        ForUpdate = false
                     };
 
                     MessengerInstance.Send(employeeMessage);
+                    if (employeeMessage.DialogResult == true)
+                        await QueryEmployees();
                 }
             }
         }
@@ -207,7 +228,7 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
             {
                 return editCommand ?? (editCommand = new RelayCommand<Employee>(EditEmployee));
 
-                void EditEmployee(Employee currentEmployee)
+               async void EditEmployee(Employee currentEmployee)
                 {
                     var employeeVm = new EmployeeViewModel(employeeService)
                     {
@@ -215,15 +236,55 @@ namespace UPS.EmployeeManagement.Presentation.ViewModel
                         Gender = currentEmployee.Gender,
                         Id = currentEmployee.Id.ToString(),
                         Name = currentEmployee.Name,
-                        Status = currentEmployee.Status
+                        Status = currentEmployee.Status,
+                        ForUpdate = true
                     };
                     var employeeMessage = new EmployeeEditMessage
                     {
                         Employee = employeeVm,
-                        ForUpdate = false
                     };
 
                     MessengerInstance.Send(employeeMessage);
+                    if (employeeMessage.DialogResult == true)
+                        await QueryEmployees();
+
+                }
+            }
+        }
+
+        private ICommand deleteCommand;
+        public ICommand DeleteCommand
+        {
+            get
+            {
+                return deleteCommand ?? (deleteCommand = new RelayCommand<Employee>(DeleteEmployee));
+
+                async void DeleteEmployee(Employee currentEmployee)
+                {
+                    var confirmationMessage = new ConfirmationMessage
+                    {
+                        Title = "Confirm Deletion",
+                        Message = $"Are you sure for deleting the employee with id: ${currentEmployee.Id}?"
+                    };
+
+                    MessengerInstance.Send(confirmationMessage);
+                    if (confirmationMessage.Result == true)
+                    {
+                        var response = await employeeService.DeleteEmployee(currentEmployee.Id);
+
+                        if(response.IsSuccess)
+                        {
+                            await QueryEmployees();
+                        }
+                        else
+                        {
+                            MessengerInstance.Send(new DialogMessage
+                            {
+                                Title = "Error",
+                                Message = $"Error occured on delete!"
+                            });
+                        }
+                    }
                 }
             }
         }

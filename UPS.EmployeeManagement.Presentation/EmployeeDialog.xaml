@@ -8,10 +8,10 @@
         mc:Ignorable="d" Width="480" Height="320"
         Title="EmployeeDialog">
     <Window.Resources>
-        <converters:GenderConverter x:Key="genderConverter"/>
+        <converters:BooleanToStringConverter x:Key="boolToTextConverter"/>
         <BooleanToVisibilityConverter x:Key="boolToVis"/>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="4">
         <Grid.Resources>
             <Style TargetType="TextBox">
                 <Setter Property="Margin" Value="2"></Setter>
@@ -42,25 +42,28 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         
-        <Label>Id</Label>
-        <TextBox Grid.Column="1" Text="{Binding Id}" DockPanel.Dock="Right" InputScope="Number"></TextBox>
+        <Label Visibility="{Binding ForUpdate, Converter={StaticResource boolToVis}}">Id</Label>
+        <TextBox IsReadOnly="True" Visibility="{Binding ForUpdate, Converter={StaticResource boolToVis}}" Grid.Column="1" Text="{Binding Id}" DockPanel.Dock="Right" InputScope="Number"></TextBox>
 
         <Label Grid.Row="1">Name</Label>
         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Name, Mode=TwoWay}" DockPanel.Dock="Right"></TextBox>
 
-        <Label Grid.Row="2" Content="{Binding EmailLabel}"></Label>
+        <Label Grid.Row="2">E-Mail</Label>
         <TextBox Grid.Row="2" Grid.Column="1" DockPanel.Dock="Right" Text="{Binding Email}" InputScope="EmailSmtpAddress"></TextBox>
 
         <Label Grid.Row="3">Gender</Label>
         <StackPanel Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
-            <RadioButton IsChecked="{Binding Gender, Converter={StaticResource genderConverter}, ConverterParameter=all, Mode=TwoWay}">All</RadioButton>
-            <RadioButton IsChecked="{Binding Gender, Converter={StaticResource genderConverter}, ConverterParameter=female, Mode=TwoWay}">Female</RadioButton>
-            <RadioButton IsChecked="{Binding Gender, Converter={StaticResource genderConverter}, ConverterParameter=male, Mode=TwoWay}">Male</RadioButton>
+            <RadioButton IsChecked="{Binding Gender, Converter={StaticResource boolToTextConverter}, ConverterParameter=female, Mode=TwoWay}">Female</RadioButton>
+            <RadioButton IsChecked="{Binding Gender, Converter={StaticResource boolToTextConverter}, ConverterParameter=male, Mode=TwoWay}">Male</RadioButton>
         </StackPanel>
 
         <Label Grid.Row="4">State</Label>
-        <ComboBox Grid.Row="4" Margin="4" Grid.Column="1" ItemsSource="{Binding Statuses}" SelectedValue="{Binding Status, Mode=TwoWay}" DockPanel.Dock="Right"></ComboBox>
+        <StackPanel Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
+            <RadioButton IsChecked="{Binding Status, Converter={StaticResource boolToTextConverter}, ConverterParameter=active, Mode=TwoWay}">Active</RadioButton>
+            <RadioButton IsChecked="{Binding Status, Converter={StaticResource boolToTextConverter}, ConverterParameter=inactive, Mode=TwoWay}">Inactive</RadioButton>
+        </StackPanel>
 
         <StackPanel VerticalAlignment="Bottom" Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <StackPanel.Resources>

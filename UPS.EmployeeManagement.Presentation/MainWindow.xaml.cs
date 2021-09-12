@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UPS.EmployeeManagement.Presentation.Messages;
+using UPS.EmployeeManagement.Presentation.ViewModel;
 
 namespace UPS.EmployeeManagement.Presentation
 {
@@ -26,6 +27,20 @@ namespace UPS.EmployeeManagement.Presentation
         {
             InitializeComponent();
             Messenger.Default.Register<EmployeeEditMessage>(this, EditEmployee);
+            Messenger.Default.Register<ConfirmationMessage>(this, Confirm);
+            Messenger.Default.Register<DialogMessage>(this, Dialog);
+
+        }
+
+        private void Dialog(DialogMessage obj)
+        {
+            MessageBox.Show(obj.Message, obj.Title, MessageBoxButton.OK, obj.IsError ? MessageBoxImage.Error : MessageBoxImage.None);
+        }
+
+        private void Confirm(ConfirmationMessage obj)
+        {
+            var result = MessageBox.Show(obj.Message, obj.Title, MessageBoxButton.YesNo);
+            obj.Result = result == MessageBoxResult.Yes;
         }
 
         private void EditEmployee(EmployeeEditMessage obj)
@@ -38,7 +53,8 @@ namespace UPS.EmployeeManagement.Presentation
             employeeEditDialog.Owner = this;
             employeeEditDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            employeeEditDialog.ShowDialog();
+            obj.DialogResult = employeeEditDialog.ShowDialog();
+            
         }
     }
 }

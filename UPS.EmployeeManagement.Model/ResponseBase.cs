@@ -15,5 +15,7 @@ namespace UPS.EmployeeManagement.Model
 
         [JsonProperty("meta")]
         public ResponseMetaModel MetaModel { get; set; }
+
+        public bool IsSuccess => Code == HttpStatusCode.OK;
     }
 }

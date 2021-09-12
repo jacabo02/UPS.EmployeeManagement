@@ -6,9 +6,9 @@ using System.Windows.Data;
 
 namespace UPS.EmployeeManagement.Presentation.Converters
 {
-    public class GenderConverter : IValueConverter
+    public class BooleanToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value is string gender && gender.Equals(parameter);
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value is string text && text.Equals(parameter);
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

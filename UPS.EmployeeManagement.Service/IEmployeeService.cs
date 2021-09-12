@@ -7,8 +7,12 @@ namespace UPS.EmployeeManagement.Service
 {
     public interface IEmployeeService
     {
-        Task<GetEmployeeResponseModel> GetEmployees(SearchParams employeeSearchParams);
+        Task<dynamic> GetEmployees(SearchParams employeeSearchParams);
 
-        Task<Employee> CreateEmployee(Employee employee);
+        Task<CreateEmployeeResponse> CreateEmployee(Employee employee);
+
+        Task<ResponseBase> DeleteEmployee(int id);
+
+        Task<CreateEmployeeResponse> UpdateEmployee(Employee employee);
     }
 }
